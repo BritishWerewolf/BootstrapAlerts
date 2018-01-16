@@ -188,6 +188,11 @@ function BootstrapAlert(options) {
             }, options.destroyAfter);
         }
         
-        return html;
+        // parse the HTML string
+        let el = document.createElement('div');
+        el.innerHTML = html;
+        el = el.children[0]; // remove the parent node, extracting the alert only
+
+        return el;
     }
 }
