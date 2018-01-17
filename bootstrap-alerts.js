@@ -1,4 +1,18 @@
-// used as an alternative to jQuery's extend to keep this library independant.
+/**
+ * Works in the same way as setTimeout, except this has a callback as a third option.
+ * @param  {Function} func     A function to call after a specified delay.
+ * @param  {integer}  time     The delay, in milliseconds.
+ * @param  {Function} callback The callback function.
+ */
+function customTimeout(func, time, callback) {
+    setTimeout(function() {
+        func();
+        if (typeof callback != "undefined") {
+            callback();
+        }
+    }, time);
+}
+
 // https://stackoverflow.com/a/11197343/3578036
 function extend() {
     for (var i = 1; i < arguments.length; i++)
@@ -8,7 +22,6 @@ function extend() {
     return arguments[0];
 }
 
-// used as a fallback for older browsers
 // https://stackoverflow.com/q/1744310/3578036
 if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function(obj, start) {
@@ -19,6 +32,49 @@ if (!Array.prototype.indexOf) {
     }
 }
 
+/**
+ * Dynamically create Bootstrap alerts during runtime.
+ * @param {object} options The various properties are listed below:
+ *                         - dismissible: Boolean
+ *                           When you want to have a dismissible alert, then set
+ *                           this to true.
+ *                         - fadeIn: Boolean
+ *                           This option requires CSS3 animations and also an
+ *                           animation to be created; see below
+ *                           @keyframes alertFadeIn { from { opacity: 0; } to { opacity: 1; } }
+ *                           .alert.fade.show {animation: alertFadeIn 0.4s;}
+ *                         - destroyAfter: integer
+ *                           A number, in milliseconds, after which the alert
+ *                           will be deleted from the DOM. This also uses jQuery
+ *                           fadeOut(400) to make the appearance of a smooth
+ *                           deletion. Set to 0 or below to disable this option.
+ *                           By default it is set to 3000, but will only work if
+ *                           dismissible is set to true.
+ *                         - max: integer
+ *                           A natural number that specifies the amount of alerts
+ *                           that can be created. If setting this _you must_
+ *                           also set maxId to a value so that the JS can
+ *                           determine how many of that element have already been
+ *                           created. Set to 0 or below to disable, or don't set maxId
+ *                         - maxId: string
+ *                           Any string that you want, provided it is shorter than
+ *                           the ECMAScript limit. However that is high, very high.
+ *                           Currently, the highest alert is deleted. That is,
+ *                           the alert that is closest to the <head> element will
+ *                           be removed first.
+ *                         - background: string or integer
+ *                           If a string is sent, it will be checked against the
+ *                           valid alert backgrounds. The background must be
+ *                           written without the "alert-" prefix.
+ *                           If an integer is sent, it will be checked as an
+ *                           array index against backgrounds array.
+ *                           In both cases, if the background is invalid, primary
+ *                           is used as a default.
+ *                         - classes: string or array
+ *                           In the case of a string, simply write the classes
+ *                           as a space delimited string.
+ *                           If an array, simply write each class as a new element.
+ */
 function BootstrapAlert(options) {
     options = typeof options == "undefined" ? {} : options;
 
@@ -28,7 +84,7 @@ function BootstrapAlert(options) {
         fadeIn: true, // this will cause the alert to fade in; requires CSS3 animations
         destroyAfter: 3000, // destory the alert after x milliseconds; 0 or below to prevent deleting
         max: 0, // the maximum number of alerts that can exist; 0 or below to ignore this setting
-        maxId: "", // an indentifier to ensure only 'like' alerts are removed
+        maxId: "my-alert", // an indentifier to ensure only 'like' alerts are removed
         background: 'primary', // the default background colour
         classes: '' // any extra classes to include on the .alert
     };
@@ -42,6 +98,7 @@ function BootstrapAlert(options) {
 
     this.clear = function() {
         content = '';
+        return this;
     }
 
     this.setBackground = function(bg) {
@@ -57,6 +114,9 @@ function BootstrapAlert(options) {
 
         // finally, initialise it to the options.background
         options.background = bg;
+
+        // chaining, yo!
+        return this;
     }
     this.setBg = this.setBackground;
     this.setBackground(options.background); // use this to also validate
@@ -65,11 +125,15 @@ function BootstrapAlert(options) {
     /** Use this to overwrite the content to just an HTML string. */
     this.setHTML = function(str) {
         content = str;
+
+        return this;
     }
 
     /** Use this to add some HTML to the content. */
     this.addHTML = function(str) {
         content += str;
+
+        return this;
     }
 
     /** Add a paragraph to the content. */
@@ -77,28 +141,37 @@ function BootstrapAlert(options) {
         classes = typeof classes == "undefined" ? "" : classes;
 
         content += '<p class="'+classes+'">'+str+'</p>';
+
+        return this;
     }
     this.addP = this.addParagraph;
 
     /** Add an anchor to the content. */
-    this.addLink = function(text, href, classes, target, title) {
-        str = '<a href="'+href+'" class="alert-link"';
-        if (typeof target != 'undefined') str += ' class="'+classes+'"';
+    this.addLink = function(href, text, classes, target, title) {
+        str = '<a href="'+href+'"';
+
+        if (typeof text == "undefined") text = href;
+        
+        if (typeof classes != 'undefined') str += ' class="alert-link '+classes+'"';
+        else str += 'class="alert-link"';
+        
         if (typeof target != 'undefined') str += ' target="'+target+'"';
         if (typeof title != 'undefined') str += ' title="'+title+'"';
         str += '>'+text+'</a>';
 
         content += str;
+
+        return this;
     }
     this.addA = this.addLink;
 
     /** Works the same as addLink(), except this will wrap the anchor in a <p> tag. */
-    this.addParaLink = function(text, href, classes, target, title) {
+    this.addParaLink = function(href, text, classes, target, title) {
         content += '<p>';
-        let r = this.addLink(text, href, target, title);
+        this.addLink(href, text, classes, target, title); // reduce code by using this
         content += '</p>';
 
-        return '<p>'+r+'</p>';
+        return this;
     }
     this.addPA = this.addParaLink;
 
@@ -111,6 +184,8 @@ function BootstrapAlert(options) {
         if (!Number.isInteger(level)) level = 1;
 
         content += '<h'+level+' class="alert-heading '+classes+'">'+str+'</h'+level+'>';
+
+        return this;
     }
     this.addH = this.addHeading;
 
@@ -155,7 +230,7 @@ function BootstrapAlert(options) {
         let html = '<div id="'+id+'" class="'+classes+'" role="alert"';
         
         // set up the max destroyer for alerts
-        if (options.max > 0 && options.maxId != '') {
+        if (options.max > 0/* && options.maxId != ''*/) {
             html += ' data-max-id="'+options.maxId+'" data-max-count="'+options.max+'"';
             
             // if there are too many of that alert ID existing then delete one
@@ -181,11 +256,17 @@ function BootstrapAlert(options) {
 
         // create a timeout to destroy the alert
         if (options.dismissible && options.destroyAfter > 0) {
-            setTimeout(function() {
-                $('#'+id).fadeOut(400, function() {
-                    $(this).remove();
-                });
-            }, options.destroyAfter);
+            customTimeout(function() {
+                // fade the element out using the CSS transition
+                document.getElementById(id).className = document.getElementById(id).className.replace(/\bshow\b/i, '');
+            },
+            options.destroyAfter,
+            function() {
+                // remove the element from the DOM after the CSS transistion is complete
+                setTimeout(function() {
+                    document.getElementById(id).parentNode.removeChild(document.getElementById(id));
+                }, 400);
+            });
         }
         
         // parse the HTML string
