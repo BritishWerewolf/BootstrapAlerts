@@ -168,12 +168,12 @@ If negated, `text` will default to `href`.
 * `classes` <sub>optional</sub>  
 Any extra classes to apply to the anchor, such as `text-primary`.
 * `target` <sub>optional</sub>  
-One of:
-* `blank`: Opens the linked document in a new window.
-* `_self`: Opens the linked document in the same frame as it was clicked (this is default).
-* `_parent`: Opens the linked document in the parent frameset.
-* `_top`: Opens the linked document in the full body of the window.
-* `framename`: Opens the linked document in a named frame.
+    One of:
+    * `blank`: Opens the linked document in a new window.
+    * `_self`: Opens the linked document in the same frame as it was clicked (this is default).
+    * `_parent`: Opens the linked document in the parent frameset.
+    * `_top`: Opens the linked document in the full body of the window.
+    * `framename`: Opens the linked document in a named frame.
 * `title` <sub>optional</sub>  
 Text that will display on hover of the anchor.  
 _Note:_ This does not create a popover.
