@@ -56,11 +56,11 @@ This will cause the alert to fade into view rather than just appearing on the sc
 The time, in milliseconds, before the alert will be destroyed from the DOM.
 
 **This requires that dimissible is set to true.**  
-The reason for that choice is that I deemed it undesired behavious to destory and alert if it is unable to be deleted by the user.  
+The reason for that choice is that I deemed it undesired behavious to destory an alert if it is unable to be deleted by the user.  
 This way, the user can destroy the element themselves with the &times; button or after a period of time it will go itself.
 
 #### `max` <sub>[Number] Default: `0`</sub>
-A natural number that specifies the maximum number of alerts that can be produced.  
+A [natural number](https://en.wikipedia.org/wiki/Natural_number) that specifies the maximum number of alerts that can be produced.  
 This is useful for when you want to create many alerts but not have too many on the screen.
 
 Setting to 0 or below will disable this option.
