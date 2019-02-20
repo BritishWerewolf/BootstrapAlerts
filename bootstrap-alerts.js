@@ -32,6 +32,23 @@ if (!Array.prototype.indexOf) {
     }
 }
 
+if (!Element.prototype.hasClass) {
+    Element.prototype.hasClass = function(classname) {
+        return (this.className && new RegExp("(^|\\s)" + classname + "(\\s|$)").test(this.className)) || false;
+    };
+}
+
+if (!Element.prototype.addClass) {
+    Element.prototype.addClass = function (classname) {
+        if (this.hasClass(classname) || classname == undefined) {
+            return this;
+        }
+        
+        this.className += (this.className.length <= 0 ? "" : " ") + classname;
+        return this;
+    };
+}
+
 /**
  * Dynamically create Bootstrap alerts during runtime.
  * @param {object} options The various properties are listed below:
@@ -222,7 +239,7 @@ function BootstrapAlert(options) {
             
             // time out just to give the element time to appear on the page and then fade it in
             setTimeout(function() {
-                $('#'+id).addClass("show");
+                document.getElementById(id).addClass('show');
             }, 100);
         }
         
@@ -237,8 +254,16 @@ function BootstrapAlert(options) {
             // the chosen one to delete is the one at the highest point in the DOM
             // meaning the closest one to the <head> element
             // ideally, this would be the 'oldest' created element
-            if ($('.alert[data-max-id]').length >= options.max) {
-                $('.alert[data-max-id]')[0].remove();
+            let collection = document.getElementsByClassName('alert');
+            let collectionCounts = 0;
+            for (let i = 0; i < collection.length; i++) {
+                if (collection[i].dataset.maxId) {
+                    collectionCounts++;
+                }
+            }
+
+            if (collectionCounts > options.maxId) {
+                collection[0].parentNode.removeChild(collection[0]);
             }
         }
 
